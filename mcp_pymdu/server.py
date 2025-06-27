@@ -8,7 +8,6 @@ from functools import wraps
 from io import StringIO
 
 import httpx
-import pandas as pd
 from geopandas import GeoDataFrame
 from mcp.server.fastmcp import FastMCP, Context
 from mcp.server.fastmcp.utilities.types import Image

@@ -54,3 +54,8 @@ Edit the `~/.gemini/settings.json` file with the following content, change path-
   }
 }
 ```
+<div align="center">
+<video width="320" height="240" controls>
+  <source src="gemini.mp4" type="video/mp4">
+</video>
+</div>
