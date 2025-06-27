@@ -60,3 +60,5 @@ Edit the `~/.gemini/settings.json` file with the following content, change path-
   <source src="gemini.mp4" type="video/mp4">
 </video>
 </div>
+
+[![Watch the video](gemini.mp4)](gemini.mp4)
