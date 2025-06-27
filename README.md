@@ -2,8 +2,6 @@
 
 A Model Control Protocol server that allows Claude Desktop to communicate with PyMDU.
 
-![Démonstration en action](gemini.gif)
-
 ## Setup
 
 1. Clone the repository
@@ -13,6 +11,8 @@ A Model Control Protocol server that allows Claude Desktop to communicate with P
 5. Install dependencies: `poetry install`
 
 ### Using with [Claude Desktop](https://claude.ai/download)
+
+![Démonstration en action](claude.gif)
 
 Edit the `claude_desktop_config.json` file with the following content, change path-to-mcp-server to the path of this repo:
 
@@ -34,6 +34,8 @@ Edit the `claude_desktop_config.json` file with the following content, change pa
 ```
 
 ### Using with [Gemini Cli](https://github.com/google-gemini/gemini-cli)
+
+![Démonstration en action](gemini.gif)
 
 Edit the `~/.gemini/settings.json` file with the following content, change path-to-mcp-server to the path of this repo:
 
