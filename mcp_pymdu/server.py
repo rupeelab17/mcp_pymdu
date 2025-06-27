@@ -2,7 +2,6 @@
 FastMCP PyMDU Example
 """
 
-import asyncio
 import io
 import sys
 from functools import wraps
@@ -13,8 +12,6 @@ from mcp.server.fastmcp import FastMCP, Context
 from mcp.server.fastmcp.utilities.types import Image
 import matplotlib.pyplot as plt
 import math
-
-from sqlalchemy.util import await_only
 
 # Create server
 mcp = FastMCP("pymdu-server", dependencies=["pyautogui", "Pillow"])
