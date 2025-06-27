@@ -6,7 +6,7 @@ authors = [
     {name = "Boris Brangeon",email = "boris.brangeon@plateforme-tipee.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 dependencies = [
     "geopandas (>=1.1.0,<2.0.0)",
     "httpx (>=0.28.1,<0.29.0)",
@@ -15,8 +15,8 @@ dependencies = [
     "pillow (>=11.2.1,<12.0.0)",
     "pyautogui (>=0.9.54,<0.10.0)",
     "pydantic (>=2.11.7,<3.0.0)",
-    "numpy (==2.2)",
-    "edsger (>=0.1.2,<0.2.0)"
+    "numpy (==1.26.3)",
+    "pymdu @ git+https://github.com/rupeelab17/pymdu.git",
 ]
 
 
