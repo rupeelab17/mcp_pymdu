@@ -54,6 +54,5 @@ Edit the `~/.gemini/settings.json` file with the following content, change path-
   }
 }
 ```
-<p align="center">
+
 ![Démonstration en action](gemini.gif)
-<p>
