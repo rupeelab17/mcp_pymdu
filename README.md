@@ -12,7 +12,7 @@ A Model Control Protocol server that allows Claude Desktop to communicate with P
 4. Install poetry `pip install poetry`
 5. Install dependencies: `poetry install`
 
-### Using with Claude Desktop
+### Using with [Claude Desktop](https://claude.ai/download)
 
 Edit the `claude_desktop_config.json` file with the following content, change path-to-mcp-server to the path of this repo:
 
@@ -33,7 +33,7 @@ Edit the `claude_desktop_config.json` file with the following content, change pa
 }
 ```
 
-### Using with Gemini Cli
+### Using with [Gemini Cli](https://github.com/google-gemini/gemini-cli)
 
 Edit the `~/.gemini/settings.json` file with the following content, change path-to-mcp-server to the path of this repo:
 
