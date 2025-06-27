@@ -26,7 +26,31 @@ Edit the `claude_desktop_config.json` file with the following content, change pa
       "env": {
         "PYTHONPATH": "path-to-mcp-server"
       }
-    },
+    }
+  }
+}
+```
+
+### Using with Gemini Cli
+
+Edit the `~/.gemini/settings.json` file with the following content, change path-to-mcp-server to the path of this repo:
+
+```json
+{
+  "theme": "Dracula",
+  "selectedAuthType": "oauth-personal",
+  "preferredEditor": "vim",
+  "mcpServers": {
+    "pymdu": {
+      "command": "path-to-python-bin",
+      "args": [
+        "-m",
+        "mcp_pymdu.server"
+      ],
+      "env": {
+        "PYTHONPATH": "path-to-mcp-server"
+      }
+    }
   }
 }
 ```

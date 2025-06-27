@@ -8,13 +8,15 @@ from functools import wraps
 from io import StringIO
 
 import httpx
+import pandas as pd
+from geopandas import GeoDataFrame
 from mcp.server.fastmcp import FastMCP, Context
 from mcp.server.fastmcp.utilities.types import Image
 import matplotlib.pyplot as plt
 import math
 
 # Create server
-mcp = FastMCP("pymdu-server", dependencies=["pyautogui", "Pillow"])
+mcp = FastMCP("pymdu-server", dependencies=["pyautogui", "Pillow", "plotly"])
 
 
 def _plot_to_image() -> Image:
@@ -163,7 +165,8 @@ def pymdu_building_to_image(
     buildings = Building()
     buildings.bbox = bbox
     buildings = buildings.run()
-    buildings.to_gdf().plot(
+    buildings_gdf = buildings.to_gdf()
+    buildings_gdf.plot(
         ax=ax,
         edgecolor="black",
         column="hauteur",
@@ -174,7 +177,46 @@ def pymdu_building_to_image(
     # Supprimer les axes pour une image plus propre
     ax.set_axis_off()
 
-    return _plot_to_image()
+    return _plot_to_image_interactive(gdf=buildings_gdf)
+
+
+def _plot_to_image_interactive(
+    gdf: GeoDataFrame, column: str = None, color_map: dict = None, labels: dict = None
+) -> str:
+    """
+    Convertit un GeoDataFrame en une carte interactive à l'aide de Plotly.
+    Retourne le graphique sous forme de chaîne de caractères HTML.
+    """
+    # Importer seulement quand nécessaire
+    import plotly.express as px
+
+    # Plotly a besoin que le GDF soit dans le système de coordonnées WGS84 (EPSG:4326)
+    if gdf.crs.to_epsg() != 4326:
+        gdf = gdf.to_crs(epsg=4326)
+
+    # Calculer le centre pour la vue initiale
+    center_lat = gdf.geometry.centroid.y.mean()
+    center_lon = gdf.geometry.centroid.x.mean()
+
+    # Créer la carte choroplèthe sur un fond de carte Mapbox
+    fig = px.choropleth_mapbox(
+        gdf,
+        geojson=gdf.geometry,
+        locations=gdf.index,
+        color=column,
+        center={"lat": center_lat, "lon": center_lon},
+        mapbox_style="carto-positron",
+        zoom=13,
+        opacity=0.7,
+        color_discrete_map=color_map,
+        labels=labels,
+        # hover_data={column: True},
+    )
+
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig.show()
+    # Renvoyer la figure sous forme de chaîne HTML pour l'intégration
+    return fig.to_html(full_html=False, include_plotlyjs="cdn")
 
 
 @capture_stdout
@@ -199,30 +241,36 @@ async def pymdu_lcz_to_image(
     lcz_gdf = lcz.run(zipfile_url=zipfile_url).to_gdf()
     table_color = lcz.table_color
     lcz_gdf.plot(ax=ax, edgecolor=None, color=lcz_gdf["color"])
-    patches = [
-        mpatches.Patch(color=info[1], label=info[0]) for info in table_color.values()
-    ]
-    plt.legend(
-        handles=patches,
-        loc="upper right",
-        title="LCZ Legend",
-        bbox_to_anchor=(1.1, 1.0),
-    )
-    table_color = lcz.table_color
-    patches = [
-        mpatches.Patch(color=info[1], label=info[0]) for info in table_color.values()
-    ]
-    plt.legend(
-        handles=patches,
-        loc="upper right",
-        title="LCZ Legend",
-        bbox_to_anchor=(1.1, 1.0),
-    )
+    # patches = [
+    #     mpatches.Patch(color=info[1], label=info[0]) for info in table_color.values()
+    # ]
+    # plt.legend(
+    #     handles=patches,
+    #     loc="upper right",
+    #     title="LCZ Legend",
+    #     bbox_to_anchor=(1.1, 1.0),
+    # )
+    # patches = [
+    #     mpatches.Patch(color=info[1], label=info[0]) for info in table_color.values()
+    # ]
+    # plt.legend(
+    #     handles=patches,
+    #     loc="upper right",
+    #     title="LCZ Legend",
+    #     bbox_to_anchor=(1.1, 1.0),
+    # )
 
     # Supprimer les axes pour une image plus propre
     ax.set_axis_off()
 
-    return _plot_to_image()
+    color_map = {info[1]: info[0] for info in table_color.values()}
+    lcz_gdf["categorie"] = lcz_gdf["color"].map(color_map)
+    # Préparer le dictionnaire de couleurs pour Plotly {nom: couleur}
+    category_to_color_map = {info[0]: info[1] for info in table_color.values()}
+    labels = {"categorie", "Zone Climatique Locale (LCZ)"}
+    return _plot_to_image_interactive(
+        gdf=lcz_gdf, column="categorie", color_map=category_to_color_map, labels=labels
+    )
 
 
 @mcp.tool()
@@ -242,9 +290,12 @@ def take_screenshot() -> Image:
 
 
 if __name__ == "__main__":
+    # import asyncio
+
     # Initialize and run the server
+    # pymdu_lcz_to_image()
     mcp.run(transport="stdio")
     # async def _run():
-    #     return await search_url_lcz(city="nantes")
+    #     return await pymdu_lcz_to_image()
     #
     # asyncio.run(_run())
