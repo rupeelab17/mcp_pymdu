@@ -2,6 +2,8 @@
 
 A Model Control Protocol server that allows Claude Desktop to communicate with PyMDU.
 
+![Démonstration en action](gemini.gif)
+
 ## Setup
 
 1. Clone the repository
@@ -55,4 +57,3 @@ Edit the `~/.gemini/settings.json` file with the following content, change path-
 }
 ```
 
-![Démonstration en action](gemini.gif)
