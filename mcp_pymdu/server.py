@@ -1,0 +1,253 @@
+"""
+FastMCP PyMDU Example
+"""
+
+import asyncio
+import io
+import sys
+from functools import wraps
+from io import StringIO
+
+import httpx
+from mcp.server.fastmcp import FastMCP, Context
+from mcp.server.fastmcp.utilities.types import Image
+import matplotlib.pyplot as plt
+import math
+
+from sqlalchemy.util import await_only
+
+# Create server
+mcp = FastMCP("pymdu-server", dependencies=["pyautogui", "Pillow"])
+
+
+def _plot_to_image() -> Image:
+    """Sauvegarde la figure matplotlib actuelle dans un objet Image."""
+    # Sauvegarder en mémoire
+    buffer = io.BytesIO()
+    plt.tight_layout(pad=0)
+    plt.savefig(buffer, format="png", bbox_inches="tight", dpi=100)
+    buffer.seek(0)
+    return Image(data=buffer.getvalue(), format="png")
+
+
+def _create_figure(width: int, height: int):
+    """Crée une figure et des axes matplotlib avec une taille spécifiée."""
+    fig, ax = plt.subplots(figsize=(width / 100, height / 100), dpi=100)
+    return fig, ax
+
+
+async def search_url_lcz(city: str) -> str:
+    """
+    Recherche url dataset pour les locate climate zone
+
+    Arguments :
+    ----------
+    city : str
+        Nom de la ville à rechercher.
+    Retour :
+       url : str
+        Url du zip pour le datasest des LCZ de la ville recherchée
+    -------
+    """
+    async with httpx.AsyncClient(verify=False, follow_redirects=True) as client:
+        _query = {
+            "type": "main",
+            "page_size": 10,
+            "page": 1,
+            "q": city,
+            "lang": "fr",
+        }
+        _header = {
+            "content-type": "application/json",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/137.0.0.0 Safari/537.36",
+        }
+
+        response = await client.get(
+            "https://www.data.gouv.fr/api/2/datasets/6641c562e5acdb35c0e6051d/resources",
+            params=_query,
+            headers=_header,
+            timeout=30.0,
+        )
+    response.raise_for_status()
+    data = response.json()
+    return data["data"][0]["url"]
+
+
+def capture_stdout(func):
+    """
+    Décorateur pour capturer et supprimer la sortie standard (stdout) d'une fonction.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # Capturer stdout pour éviter les interférences avec MCP
+        old_stdout = sys.stdout
+        sys.stdout = (
+            StringIO()
+        )  # Rediriger vers un buffer vide pour supprimer la sortie
+        try:
+            # Exécuter la fonction originale
+            return func(*args, **kwargs)
+        finally:
+            # Restaurer stdout
+            sys.stdout = old_stdout
+
+    return wrapper
+
+
+@mcp.tool()
+async def get_bbox_area(
+    lat: float, lon: float, bbox_area: int, ctx: Context
+) -> list[float]:
+    """
+    Calcule la bounding-box carrée d'aire centrée sur (lat, lon).
+
+    Arguments :
+    ----------
+    lat : float
+        Latitude du point central en degrés décimaux.
+    lon : float
+        Longitude du point central en degrés décimaux.
+    bbox_area : int
+        Area bbox en km2.
+
+    Retour :
+    -------
+    (min_lat, min_lon, max_lat, max_lon) : tuple de floats
+        Coordonnées de la boîte : latitude minimale, longitude minimale,
+        latitude maximale, longitude maximale.
+    """
+    await ctx.info(f"Processing {bbox_area}")
+    # Rayon moyen de la Terre en km
+    R = 6371.0
+
+    # Demi-longueur de côté du carré en km (1 km² => côté = 1 km)
+    half_side = bbox_area / 2  # km
+
+    # Conversion de la latitude et longitude du centre en radians
+    lat_rad = math.radians(lat)
+    lon_rad = math.radians(lon)
+
+    # Calcul des décalages en radians
+    # Δφ = half_side / R
+    delta_lat = half_side / R
+    # Δλ = half_side / (R * cosφ)
+    delta_lon = half_side / (R * math.cos(lat_rad))
+
+    # Calcul des bornes en radians
+    min_lat_rad = lat_rad - delta_lat
+    max_lat_rad = lat_rad + delta_lat
+    min_lon_rad = lon_rad - delta_lon
+    max_lon_rad = lon_rad + delta_lon
+
+    # Conversion en degrés
+    min_lat = math.degrees(min_lat_rad)
+    max_lat = math.degrees(max_lat_rad)
+    min_lon = math.degrees(min_lon_rad)
+    max_lon = math.degrees(max_lon_rad)
+
+    return [min_lon, min_lat, max_lon, max_lat]
+
+
+@capture_stdout
+@mcp.tool()
+def pymdu_building_to_image(
+    bbox: list = [-1.152704, 46.181627, -1.139893, 46.18699],
+    width: int = 800,
+    height: int = 600,
+) -> Image:
+    """Convert a GeoDataFrame to an image visualization"""
+    # Importer seulement quand nécessaire
+    from pymdu.geometric import Building
+
+    fig, ax = _create_figure(width, height)
+
+    buildings = Building()
+    buildings.bbox = bbox
+    buildings = buildings.run()
+    buildings.to_gdf().plot(
+        ax=ax,
+        edgecolor="black",
+        column="hauteur",
+        legend=True,
+        legend_kwds={"label": "Hauteur", "orientation": "vertical"},
+    )
+
+    # Supprimer les axes pour une image plus propre
+    ax.set_axis_off()
+
+    return _plot_to_image()
+
+
+@capture_stdout
+@mcp.tool()
+async def pymdu_lcz_to_image(
+    bbox: list = [-1.152704, 46.181627, -1.139893, 46.18699],
+    width: int = 800,
+    height: int = 600,
+    city: str = "la-rochelle",
+) -> Image:
+    """Convert a GeoDataFrame to an image visualization"""
+    # Importer seulement quand nécessaire
+    from pymdu.geometric import Lcz
+    import matplotlib.patches as mpatches
+
+    fig, ax = _create_figure(width, height)
+
+    lcz = Lcz()
+    lcz.bbox = bbox
+    zipfile_url: str = await search_url_lcz(city=city)
+
+    lcz_gdf = lcz.run(zipfile_url=zipfile_url).to_gdf()
+    table_color = lcz.table_color
+    lcz_gdf.plot(ax=ax, edgecolor=None, color=lcz_gdf["color"])
+    patches = [
+        mpatches.Patch(color=info[1], label=info[0]) for info in table_color.values()
+    ]
+    plt.legend(
+        handles=patches,
+        loc="upper right",
+        title="LCZ Legend",
+        bbox_to_anchor=(1.1, 1.0),
+    )
+    table_color = lcz.table_color
+    patches = [
+        mpatches.Patch(color=info[1], label=info[0]) for info in table_color.values()
+    ]
+    plt.legend(
+        handles=patches,
+        loc="upper right",
+        title="LCZ Legend",
+        bbox_to_anchor=(1.1, 1.0),
+    )
+
+    # Supprimer les axes pour une image plus propre
+    ax.set_axis_off()
+
+    return _plot_to_image()
+
+
+@mcp.tool()
+def take_screenshot() -> Image:
+    """
+    Take a screenshot of the user's screen and return it as an image. Use
+    this tool anytime the user wants you to look at something they're doing.
+    """
+    import pyautogui
+
+    buffer = io.BytesIO()
+
+    # if the file exceeds ~1MB, it will be rejected by Claude
+    screenshot = pyautogui.screenshot()
+    screenshot.convert("RGB").save(buffer, format="JPEG", quality=60, optimize=True)
+    return Image(data=buffer.getvalue(), format="jpeg")
+
+
+if __name__ == "__main__":
+    # Initialize and run the server
+    mcp.run(transport="stdio")
+    # async def _run():
+    #     return await search_url_lcz(city="nantes")
+    #
+    # asyncio.run(_run())
