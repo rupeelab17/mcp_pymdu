@@ -5,8 +5,10 @@ A Model Control Protocol server that allows Claude Desktop to communicate with P
 ## Setup
 
 1. Clone the repository
-2. Copy `.env.example` to `.env` and configure as needed
-3. Install dependencies: `pip install -r requirements.txt`
+2. Install environment `micromamba env create -f environment.yml`
+3. Activate environment `micromamba activate mcp_pymdu`
+4. Install poetry `pip install poetry`
+5. Install dependencies: `poetry install`
 
 ### Using with Claude Desktop
 
@@ -15,13 +17,16 @@ Edit the `claude_desktop_config.json` file with the following content, change pa
 ```json
 {
   "mcpServers": {
-    "ollama-server": {
-      "command": "python",
-      "args": ["-m", "src.mcp_server.server"],
+    "pymdu": {
+      "command": "path-to-python-bin",
+      "args": [
+        "-m",
+        "mcp_pymdu.server"
+      ],
       "env": {
         "PYTHONPATH": "path-to-mcp-server"
       }
-    }
+    },
   }
 }
 ```
