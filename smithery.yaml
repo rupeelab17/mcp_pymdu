@@ -1,6 +1,6 @@
 version: 1
 start:
-  command: ["python", "-m", "mcp_pymdu.server.py"]
+  command: ["python", "/app/mcp_pymdu/server.py"]
   build:
     dockerfile: "Dockerfile"           # Path to your Dockerfile
     dockerBuildPath: "."               # Docker build context
