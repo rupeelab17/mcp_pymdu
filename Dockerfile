@@ -1,6 +1,5 @@
-
 FROM mambaorg/micromamba AS runtime_micromamba
-USER root
+
 # install apt dependencies
 RUN --mount=type=cache,target=/var/cache/apt \
    export DEBIAN_FRONTEND=noninteractive && \
