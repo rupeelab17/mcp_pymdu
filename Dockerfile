@@ -2,8 +2,7 @@ FROM mambaorg/micromamba AS runtime_micromamba
 USER root
 
 # install apt dependencies
-RUN --mount=type=cache,target=/var/cache/apt \
-   export DEBIAN_FRONTEND=noninteractive && \
+RUN
    apt-get update && \
    apt-get upgrade -y && \
    apt-get install -y --no-install-recommends --no-install-suggests build-essential \
@@ -42,4 +41,4 @@ RUN --mount=type=cache,target=/app/.cache poetry install --no-interaction --no-a
 
 
 #CMD ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c", "python -m mcp_pymdu.server.py"]
-ENTRYPOINT ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c", "python /app/mcp_pymdu/server.py"]
+ENTRYPOINT ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c", "python -m mcp_pymdu.server"]
