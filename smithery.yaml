@@ -1,9 +1,6 @@
-version: 1
-start:
-#  command: ["python", "/app/mcp_pymdu/server.py"]
-  build:
-    dockerfile: "Dockerfile"           # Path to your Dockerfile
-    dockerBuildPath: "."               # Docker build context
-  port: 8000
-  startCommand:
-    type: "http"
+runtime: "container"
+build:
+  dockerfile: "Dockerfile"           # Path to your Dockerfile
+  dockerBuildPath: "."               # Docker build context
+startCommand:
+  type: "http"
