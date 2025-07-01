@@ -1,4 +1,5 @@
 FROM mambaorg/micromamba AS runtime_micromamba
+USER root
 
 # install apt dependencies
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -21,11 +22,11 @@ RUN --mount=type=cache,target=/var/cache/apt \
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 # Create the environment:
 COPY ./environment.yml .
-RUN micromamba env create -f environment.yml -p /opt/conda/envs/umep_pymdu
+RUN micromamba env create -f environment.yml -p /opt/conda/envs/mcp_pymdu
 
 # Définir l'environnement par défaut
-ENV PATH=/opt/conda/envs/umep_pymdu/bin:$PATH
-ENV CONDA_DEFAULT_ENV=/opt/conda/envs/umep_pymdu
+ENV PATH=/opt/conda/envs/mcp_pymdu/bin:$PATH
+ENV CONDA_DEFAULT_ENV=/opt/conda/envs/mcp_pymdu
 
 SHELL ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c"]
 WORKDIR /app
@@ -35,8 +36,10 @@ COPY . .
 ARG PYPI_MIRROR
 RUN if [ -n "$PYPI_MIRROR" ]; then pip config set global.index-url $PYPI_MIRROR; fi
 RUN --mount=type=cache,target=/app/.cache python -m pip install --upgrade pip
+RUN --mount=type=cache,target=/app/.cache python -m pip install --upgrade uv
+RUN --mount=type=cache,target=/app/.cache python -m uv pip install poetry
 RUN --mount=type=cache,target=/app/.cache poetry install --no-interaction --no-ansi -vvv
 
 
-#CMD ["python", "server.py"]
-CMD ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c", "python server.py"]
+#CMD ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c", "python -m mcp_pymdu.server.py"]
+ENTRYPOINT ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c", "python /app/mcp_pymdu/server.py"]

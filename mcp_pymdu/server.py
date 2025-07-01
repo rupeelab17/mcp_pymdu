@@ -326,7 +326,7 @@ if __name__ == "__main__":
 
     # Initialize and run the server
     # pymdu_lcz_to_image()
-    mcp.run(transport="stdio")
+    mcp.run(transport="streamable-http")
     # async def _run():
     #     return await pymdu_lcz_to_image()
     #
