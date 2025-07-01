@@ -1,59 +1,75 @@
 import json
 from pathlib import Path
-from dataclasses import dataclass
-from fastmcp import FastMCP
+from fastmcp.server import FastMCP
+from pydantic import BaseModel
 
-@dataclass
-class Record:
+RECORDS = json.loads(Path(__file__).with_name("records.json").read_text())
+LOOKUP = {r["id"]: r for r in RECORDS}
+
+class SearchResult(BaseModel):
     id: str
     title: str
     text: str
-    metadata: dict
 
-def create_server(
-    records_path: Path | str,
-    name: str | None = None,
-    instructions: str | None = None,
-) -> FastMCP:
-    """Create a FastMCP server that can search and fetch records from a JSON file."""
-    records = json.loads(Path(records_path).read_text())
+class SearchResultPage(BaseModel):
+    results: list[SearchResult]
 
-    RECORDS = [Record(**r) for r in records]
-    LOOKUP = {r.id: r for r in RECORDS}
+class FetchResult(BaseModel):
+    id: str
+    title: str
+    text: str
+    url: str | None = None
+    metadata: dict[str, str] | None = None
 
-    mcp = FastMCP(name=name or "Deep Research MCP", instructions=instructions)
+def create_server():
+    mcp = FastMCP(name="Cupcake MCP", instructions="Search cupcake orders")
 
     @mcp.tool()
-    async def search(query: str):
+    async def search(query: str) -> SearchResultPage:
         """
-        Simple unranked keyword search across title, text, and metadata.
-        Searches for any of the query terms in the record content.
-        Returns a list of matching record IDs for ChatGPT to fetch.
+        Search for cupcake orders – keyword match.
+
+        Returns a SearchResultPage containing a list of SearchResult items.
         """
         toks = query.lower().split()
-        ids = []
+        results: list[SearchResult] = []
         for r in RECORDS:
-            record_txt = " ".join(
-                [r.title, r.text, " ".join(r.metadata.values())]
+            hay = " ".join(
+                [
+                    r.get("title", ""),
+                    r.get("text", ""),
+                    " ".join(r.get("metadata", {}).values()),
+                ]
             ).lower()
-            if any(t in record_txt for t in toks):
-                ids.append(r.id)
+            if any(t in hay for t in toks):
+                results.append(
+                    SearchResult(id=r["id"], title=r.get("title", ""), text=r.get("text", ""))
+                )
 
-        return {"ids": ids}
+        # Return the Pydantic model (FastMCP will serialise it for us)
+        return SearchResultPage(results=results)
 
     @mcp.tool()
-    async def fetch(id: str):
+    async def fetch(id: str) -> FetchResult:
         """
-        Fetch a record by ID.
-        Returns the complete record data for ChatGPT to analyze and cite.
+        Fetch a cupcake order by ID.
+
+        Returns a FetchResult model.
         """
         if id not in LOOKUP:
-            raise ValueError(f"Unknown record ID: {id}")
-        return LOOKUP[id]
+            raise ValueError("unknown id")
+
+        r = LOOKUP[id]
+        return FetchResult(
+            id=r["id"],
+            title=r.get("title", ""),
+            text=r.get("text", ""),
+            url=r.get("url"),
+            metadata=r.get("metadata"),
+        )
 
     return mcp
 
-if __name__ == "__main__":
-    mcp = create_server("records.json")
-    mcp.run(transport="http", port=8000)
 
+if __name__ == "__main__":
+    create_server().run(transport="sse", host="127.0.0.1", port=8000)
