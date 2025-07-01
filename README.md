@@ -2,6 +2,8 @@
 
 A Model Control Protocol server that allows Claude Desktop to communicate with PyMDU.
 
+[![smithery badge](https://smithery.ai/badge/@rupeelab17/mcp_pymdu)](https://smithery.ai/server/@rupeelab17/mcp_pymdu)
+
 ## Setup
 
 1. Clone the repository
