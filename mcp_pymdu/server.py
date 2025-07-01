@@ -12,10 +12,9 @@ import dotenv
 import httpx
 from geopandas import GeoDataFrame
 from matplotlib import pyplot as plt
-from mcp.server.fastmcp import FastMCP, Context
 from mcp.server.fastmcp.utilities.types import Image
 import math
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP, Context
 import asyncio
 from serpapi import GoogleSearch
 
@@ -326,7 +325,8 @@ if __name__ == "__main__":
 
     # Initialize and run the server
     # pymdu_lcz_to_image()
-    mcp.run(transport="streamable-http")
+    # mcp.run(transport="streamable-http")
+    mcp.run(transport="stdio")
     # async def _run():
     #     return await pymdu_lcz_to_image()
     #
