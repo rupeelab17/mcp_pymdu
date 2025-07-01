@@ -2,9 +2,8 @@ FROM mambaorg/micromamba AS runtime_micromamba
 USER root
 
 # install apt dependencies
-RUN
-   apt-get update && \
-   apt-get upgrade -y && \
+RUN --mount=type=cache,target=/var/cache/apt \
+   export DEBIAN_FRONTEND=noninteractive && \
    apt-get install -y --no-install-recommends --no-install-suggests build-essential \
     vim zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev \
     libsqlite3-dev wget libbz2-dev libpq-dev libssl-dev libffi-dev libxml2-dev \
