@@ -151,12 +151,14 @@ async def get_bbox_area(
 @capture_stdout
 @mcp.tool()
 def pymdu_building_to_image(
-    bbox: list = [-1.152704, 46.181627, -1.139893, 46.18699],
+    bbox=None,
     width: int = 800,
     height: int = 600,
-) -> Image:
+) -> str:
     """Convert a GeoDataFrame to an image visualization"""
     # Importer seulement quand nécessaire
+    if bbox is None:
+        bbox = [-1.152704, 46.181627, -1.139893, 46.18699]
     from pymdu.geometric import Building
 
     fig, ax = _create_figure(width, height)
@@ -225,11 +227,10 @@ async def pymdu_lcz_to_image(
     width: int = 800,
     height: int = 600,
     city: str = "la-rochelle",
-) -> Image:
+) -> str:
     """Convert a GeoDataFrame to an image visualization"""
     # Importer seulement quand nécessaire
     from pymdu.geometric import Lcz
-    import matplotlib.patches as mpatches
 
     fig, ax = _create_figure(width, height)
 
@@ -266,7 +267,7 @@ async def pymdu_lcz_to_image(
     lcz_gdf["categorie"] = lcz_gdf["color"].map(color_map)
     # Préparer le dictionnaire de couleurs pour Plotly {nom: couleur}
     category_to_color_map = {info[0]: info[1] for info in table_color.values()}
-    labels = {"categorie", "Zone Climatique Locale (LCZ)"}
+    labels = {"categorie": "Zone Climatique Locale (LCZ)"}
     return _plot_to_image_interactive(
         gdf=lcz_gdf, column="categorie", color_map=category_to_color_map, labels=labels
     )

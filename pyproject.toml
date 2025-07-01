@@ -17,6 +17,7 @@ dependencies = [
     "pydantic (>=2.11.7,<3.0.0)",
     "numpy (==1.26.3)",
     "pymdu @ git+https://github.com/rupeelab17/pymdu.git",
+    "fastmcp (>=2.9.2,<3.0.0)",
 ]
 
 
