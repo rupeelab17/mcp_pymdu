@@ -9,29 +9,35 @@ from llama_index.tools.mcp import BasicMCPClient, McpToolSpec
 from llama_index.core.agent.workflow import FunctionAgent, ToolCall, ToolCallResult
 from llama_index.core.workflow import Context
 
+# from llama_index.tools.duckduckgo import DuckDuckGoSearchToolSpec
+
+
 dotenv.load_dotenv()
 
 # 1. Instanciation du LLM
-llm = Ollama(model="devstral:24b", request_timeout=120.0)
+llm = Ollama(model="devstral:24b", request_timeout=120.0, temperature=0.7)
 
 
 # 2. Fonction pour créer l’agent à partir du spec MCP
 async def get_agent_from_spec(mcp_spec: McpToolSpec) -> FunctionAgent:
     try:
-        tools = await mcp_spec.to_tool_list_async()
+        tools_mcp = await mcp_spec.to_tool_list_async()
     except ConnectError as e:
         print(f"❌ Impossible de joindre le serveur MCP : {e}")
         return  # ou gérez la reprise selon votre logique
 
+    # tool_spec = DuckDuckGoSearchToolSpec()
+    # tools_search = tool_spec.to_tool_list()
+
+    # tools_ = tools_search + tools_mcp
+    tools_ = tools_mcp
+
     agent = FunctionAgent(
         name="Agent",
-        description="An agent that can work with Our Database software.",
-        tools=tools,
+        description="An agent that can work with Our pymdu software.",
+        tools=tools_,
         llm=llm,
-        system_prompt=(
-            "You are an AI assistant for Tool Calling.\n"
-            "Before you help a user, you need to work with tools to interact with Our Database."
-        ),
+        system_prompt="You are an agent that knows how to build agents in LlamaIndex.",
     )
     return agent
 

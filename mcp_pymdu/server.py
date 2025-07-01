@@ -3,16 +3,23 @@ FastMCP PyMDU Example
 """
 
 import io
+import os
 import sys
 from functools import wraps
 from io import StringIO
 
+import dotenv
 import httpx
 from geopandas import GeoDataFrame
+from matplotlib import pyplot as plt
 from mcp.server.fastmcp import FastMCP, Context
 from mcp.server.fastmcp.utilities.types import Image
-import matplotlib.pyplot as plt
 import math
+from mcp.server.fastmcp import FastMCP
+import asyncio
+from serpapi import GoogleSearch
+
+dotenv.load_dotenv()
 
 # Create server
 mcp = FastMCP("pymdu-server", dependencies=["pyautogui", "Pillow", "plotly"])
@@ -287,6 +294,31 @@ def take_screenshot() -> Image:
     screenshot = pyautogui.screenshot()
     screenshot.convert("RGB").save(buffer, format="JPEG", quality=60, optimize=True)
     return Image(data=buffer.getvalue(), format="jpeg")
+
+
+async def run_search(params):
+    """Run SerpAPI search asynchronously"""
+    try:
+
+        result = await asyncio.to_thread(lambda: GoogleSearch(params).get_dict())
+        return result
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+async def search_google(query: str, location: str = "France"):
+    # Prepare search parameters
+    params = {
+        "api_key": os.environ.get("API_KEY"),
+        "q": query,
+        "hl": "fr",
+        "gl": "fr",
+        # "engine": "google",
+    }
+
+    search_results = await run_search(params)
+    return search_results
 
 
 if __name__ == "__main__":
