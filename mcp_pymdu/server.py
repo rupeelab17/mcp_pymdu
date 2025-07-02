@@ -306,7 +306,10 @@ async def run_search(params):
 
 
 @mcp.tool()
-async def search_google(query: str, location: str = "France"):
+async def search_google(query: str):
+    """
+    Search on web with google
+    """
     # Prepare search parameters
     params = {
         "api_key": os.environ.get("API_KEY"),

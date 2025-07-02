@@ -22,10 +22,12 @@ Edit the `claude_desktop_config.json` file with the following content, change pa
 {
   "mcpServers": {
     "pymdu": {
-      "command": "path-to-python-bin",
+      "command": "path-to-python-bin/fastmcp",
       "args": [
-        "-m",
-        "mcp_pymdu.server"
+        "run",
+        "path-to-mcp-server/mcp_pymdu/server.py",
+		"--transport",
+		"stdio"
       ],
       "env": {
         "PYTHONPATH": "path-to-mcp-server"
@@ -48,10 +50,12 @@ Edit the `~/.gemini/settings.json` file with the following content, change path-
   "preferredEditor": "vim",
   "mcpServers": {
     "pymdu": {
-      "command": "path-to-python-bin",
+      "command": "path-to-python-bin/fastmcp",
       "args": [
-        "-m",
-        "mcp_pymdu.server"
+        "run",
+        "path-to-mcp-server/mcp_pymdu/server.py",
+		"--transport",
+		"stdio"
       ],
       "env": {
         "PYTHONPATH": "path-to-mcp-server"
