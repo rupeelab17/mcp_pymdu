@@ -21,4 +21,7 @@ startCommand:
         args: ['run','mcp_pymdu/server.py']
       };
     }
-
+# Resource requirements
+resources:
+  memory: "512Mi"
+  cpu: "500m"

@@ -18,12 +18,7 @@ dependencies = [
     "numpy (==1.26.3)",
     "pymdu @ git+https://github.com/rupeelab17/pymdu.git",
     "fastmcp (>=2.9.2,<3.0.0)",
-    "llama-index-tools-mcp (>=0.2.5,<0.3.0)",
-    "llama-index-llms-ollama (>=0.6.2,<0.7.0)",
-    "llama-index-tools-duckduckgo (>=0.3.0,<0.4.0)",
-    "serpapi (>=0.1.5,<0.2.0)",
-    "google-search-results (>=2.4.2,<3.0.0)",
-    "dotenv (>=0.9.9,<0.10.0)",
+    "dotenv (>=0.9.9,<0.10.0)"
 ]
 
 
@@ -34,4 +29,9 @@ packages = ["mcp_pymdu/server"]
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
+serpapi = "^0.1.5"
+llama-index-tools-mcp = "^0.2.5"
+llama-index-llms-ollama = "^0.6.2"
+llama-index-tools-duckduckgo = "^0.3.0"
+google-search-results = "^2.4.2"
 

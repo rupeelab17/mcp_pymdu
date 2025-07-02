@@ -3,7 +3,6 @@ FastMCP PyMDU Example
 """
 
 import io
-import os
 import sys
 from functools import wraps
 from io import StringIO
@@ -16,7 +15,8 @@ from mcp.server.fastmcp.utilities.types import Image
 import math
 from mcp.server.fastmcp import FastMCP, Context
 import asyncio
-from serpapi import GoogleSearch
+
+# from serpapi import GoogleSearch
 
 dotenv.load_dotenv()
 
@@ -305,22 +305,22 @@ async def run_search(params):
         return {"error": str(e)}
 
 
-@mcp.tool()
-async def search_google(query: str):
-    """
-    Search on web with google
-    """
-    # Prepare search parameters
-    params = {
-        "api_key": os.environ.get("API_KEY"),
-        "q": query,
-        "hl": "fr",
-        "gl": "fr",
-        # "engine": "google",
-    }
-
-    search_results = await run_search(params)
-    return search_results
+# @mcp.tool()
+# async def search_google(query: str):
+#     """
+#     Search on web with google
+#     """
+#     # Prepare search parameters
+#     params = {
+#         "api_key": os.environ.get("API_KEY"),
+#         "q": query,
+#         "hl": "fr",
+#         "gl": "fr",
+#         # "engine": "google",
+#     }
+#
+#     search_results = await run_search(params)
+#     return search_results
 
 
 async def main():
