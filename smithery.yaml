@@ -4,4 +4,14 @@ build:
   dockerBuildPath: "."               # Docker build context
 startCommand:
   type: stdio
-  commandFunction: ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c", "fastmcp run mcp_pymdu/server.py --transport stdio"]
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => {
+     
+      return {
+        command: 'fastmcp',
+        args: ['run','mcp_pymdu/server.py']
+      };
+    }
+
