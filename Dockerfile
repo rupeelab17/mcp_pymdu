@@ -41,5 +41,5 @@ RUN --mount=type=cache,target=/app/.cache python -m uv pip install poetry
 RUN --mount=type=cache,target=/app/.cache poetry install --no-interaction --no-ansi -vvv
 
 
-CMD ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c", "fastmcp run mcp_pymdu/server.py --transport stdio"]
+CMD ["fastmcp", "run", "/app/mcp_pymdu/server.py", "--transport", "stdio"]
 #ENTRYPOINT ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c", "python -m mcp_pymdu.server"]
