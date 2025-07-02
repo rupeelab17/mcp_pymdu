@@ -1,7 +1,14 @@
+name: "PyMCDU"
+description: ""
+version: "1.0.0"
+
 runtime: "container"
 build:
   dockerfile: "Dockerfile"           # Path to your Dockerfile
   dockerBuildPath: "."               # Docker build context
+# Supported platforms
+platforms:
+  - claude-desktop
 startCommand:
   type: stdio
   commandFunction:
