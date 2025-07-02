@@ -10,7 +10,7 @@ build:
 platforms:
   - claude-desktop
 startCommand:
-  type: streamable-http
+  type: "http"
   commandFunction:
     # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
     |-
