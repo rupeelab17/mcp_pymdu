@@ -30,7 +30,8 @@ Edit the `claude_desktop_config.json` file with the following content, change pa
 		"stdio"
       ],
       "env": {
-        "PYTHONPATH": "path-to-mcp-server"
+        "PYTHONPATH": "path-to-mcp-server",
+        
       }
     }
   }

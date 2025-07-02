@@ -2,5 +2,6 @@ runtime: "container"
 build:
   dockerfile: "Dockerfile"           # Path to your Dockerfile
   dockerBuildPath: "."               # Docker build context
-startCommand:
-  type: "stdio"
+start:
+  command: ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c", "fastmcp run mcp_pymdu/server.py --transport stdio"]
+  port: 8000
