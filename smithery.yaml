@@ -9,18 +9,29 @@ build:
 # Supported platforms
 platforms:
   - claude-desktop
+#startCommand:
+#  type: stdio
+#  commandFunction:
+#    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+#    |-
+#    (config) => {
+#
+#      return {
+#        command: '/opt/conda/envs/mcp_pymdu/bin/fastmcp',
+#        args: ['run','/app/mcp_pymdu/server.py']
+#      };
+#    }
 startCommand:
-  type: stdio
-  commandFunction:
-    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
-    |-
-    (config) => {
-     
-      return {
-        command: '/opt/conda/envs/mcp_pymdu/bin/fastmcp',
-        args: ['run','/app/mcp_pymdu/server.py']
-      };
-    }
+  type: "http"
+  configSchema:                      # JSON Schema for configuration
+    type: "object"
+    properties:
+      apiKey:
+        type: "string"
+        description: "Your API key"
+    required: ["apiKey"]
+  exampleConfig:
+    apiKey: "a8b0c33d-7878-43f8-8080-a8d9284df5fd"
 # Resource requirements
 resources:
   memory: "512Mi"
