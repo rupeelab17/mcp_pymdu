@@ -18,7 +18,7 @@ startCommand:
      
       return {
         command: '/opt/conda/envs/mcp_pymdu/bin/fastmcp',
-        args: ['run','/app/mcp_pymdu/server.py']
+        args: ['run','/app/mcp_pymdu/server.py', '--transport', 'sse']
       };
     }
 # Resource requirements
