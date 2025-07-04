@@ -34,4 +34,5 @@ llama-index-tools-mcp = "^0.2.5"
 llama-index-llms-ollama = "^0.6.2"
 llama-index-tools-duckduckgo = "^0.3.0"
 google-search-results = "^2.4.2"
+mcpo = "^0.0.16"
 

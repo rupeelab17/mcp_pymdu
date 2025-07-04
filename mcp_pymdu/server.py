@@ -323,15 +323,15 @@ async def run_search(params):
 #     return search_results
 
 
-async def main():
-    mcp.run(transport="stdio")
+async def main(transport: str = "stdio"):
+    mcp.run(transport=transport)
 
 
 if __name__ == "__main__":
 
     # Initialize and run the server
     # pymdu_lcz_to_image()
-    asyncio.run(main())
+    asyncio.run(main(transport="stdio"))
     # mcp.run(transport="streamable-http")
     # mcp.run(transport="stdio")
     # async def _run():

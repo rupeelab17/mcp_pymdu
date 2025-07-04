@@ -65,4 +65,25 @@ Edit the `~/.gemini/settings.json` file with the following content, change path-
   }
 }
 ```
+# ⚡️ mcpo
 
+Expose any MCP tool as an OpenAPI-compatible HTTP server—instantly.
+
+mcpo is a dead-simple proxy that takes an MCP server command and makes it accessible via standard RESTful OpenAPI, so your tools "just work" with LLM agents and apps expecting OpenAPI servers.
+
+No custom protocol. No glue code. No hassle.
+
+## 🚀 Quick Usage
+
+We recommend using uv for lightning-fast startup and zero config.
+
+```bash
+uvx mcpo --port 8000 --api-key "top-secret" -- fastmcp run mcp_pymdu/server.py
+```
+
+Or, if you’re using Python:
+
+```bash
+pip install mcpo
+mcpo --port 8000 --api-key "top-secret" -- fastmcp run mcp_pymdu/server.py
+```
