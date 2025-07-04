@@ -6,6 +6,7 @@ import io
 import sys
 from functools import wraps
 from io import StringIO
+from typing import Literal
 
 import dotenv
 import httpx
@@ -323,7 +324,7 @@ async def run_search(params):
 #     return search_results
 
 
-async def main(transport: str = "stdio"):
+async def main(transport: Literal["stdio", "sse", "streamable-http"]):
     mcp.run(transport=transport)
 
 
