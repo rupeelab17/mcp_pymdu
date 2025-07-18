@@ -1,3 +1,4 @@
+# This line sets the name of the conda environment that will be created.
 name: mcp_pymdu
 channels:
   - conda-forge

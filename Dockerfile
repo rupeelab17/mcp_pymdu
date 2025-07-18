@@ -1,13 +1,20 @@
+# This Dockerfile section sets up a Python application environment using micromamba and Poetry.
+# Here's what each part does:
+
+# 1. Use the micromamba base image for efficient conda environment management.
 FROM mambaorg/micromamba AS runtime_micromamba
+
+# 2. Switch to the root user to install system packages.
 USER root
 
-# Set environment variables early
+# 3. Set environment variables early for non-interactive apt installs and to activate the conda environment by default.
 ENV DEBIAN_FRONTEND=noninteractive \
     MAMBA_DOCKERFILE_ACTIVATE=1 \
     PATH=/opt/conda/envs/mcp_pymdu/bin:$PATH \
     CONDA_DEFAULT_ENV=/opt/conda/envs/mcp_pymdu
 
-# Install system dependencies in a single layer
+# 4. Install all required system dependencies in a single layer for efficiency.
+#    Uses build caches for apt to speed up rebuilds.
 RUN --mount=type=cache,target=/var/cache/apt \
     --mount=type=cache,target=/var/lib/apt/lists \
     apt-get update && \
@@ -51,18 +58,21 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Create the environment:
+# 5. Copy the conda environment specification and create the environment.
 COPY ./environment.yml .
 RUN micromamba env create -f environment.yml -p /opt/conda/envs/mcp_pymdu
 
+# 6. Set the default shell to run commands inside the conda environment.
 SHELL ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c"]
 
+# 7. Set the working directory for the application.
 WORKDIR /app
 
-# Copy application code last
+# 8. Copy the application code into the image.
 COPY . .
 
-# install poetry
+# 9. Install Poetry and project dependencies.
+#    Optionally uses a custom PyPI mirror if provided.
 ARG PYPI_MIRROR
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=cache,target=/root/.cache/pypoetry \
@@ -73,7 +83,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     poetry config cache-dir /root/.cache/pypoetry && \
     poetry install --no-interaction --no-ansi
 
-
-
+# 10. Set the default command to run the application using fastmcp.
 CMD ["/opt/conda/envs/mcp_pymdu/bin/fastmcp", "run", "/app/mcp_pymdu/server.py", "--transport", "stdio"]
+# Alternative entrypoint (commented out): run the server module directly with Python.
 #ENTRYPOINT ["micromamba", "run", "-n", "mcp_pymdu", "/bin/bash", "-c", "python -m mcp_pymdu.server"]
